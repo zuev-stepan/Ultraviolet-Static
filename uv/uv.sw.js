@@ -157,8 +157,14 @@ class UVServiceWorker extends EventEmitter {
                 case 'iframe':
                 case 'document':
                         if (isHtml(ultraviolet.meta.url, (responseCtx.headers['content-type'] || ''))) {
+                            let raw = await response.arrayBuffer();
+                            let encoding = 'utf-8';
+                            if (responseCtx.headers['content-type'].endsWith('1251')) {
+                                encoding = 'windows-1251';
+                                responseCtx.headers['content-type'] = 'text/html; charset=utf-8';
+                            }
                             responseCtx.body = ultraviolet.rewriteHtml(
-                                await response.text(), 
+                                new TextDecoder(encoding).decode(raw),
                                 { 
                                     document: true ,
                                     injectHead: ultraviolet.createHtmlInject(
